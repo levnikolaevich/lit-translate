@@ -1,0 +1,181 @@
+<div class="center-container">
+  <!-- File Upload Input -->
+  <nz-row [nzGutter]="16" style="margin-bottom: 20px; padding-top: 150px;">
+    <nz-col nzSpan="24">
+      <label for="file-upload" style="font-weight: bold;">Upload MS Word file:</label>
+      <nz-upload
+        nzType="drag"
+        nzLimit="1"
+        [nzMultiple]="false"
+        (nzChange)="handleDocumentUpload($event)"
+        [nzAccept]="'application/vnd.openxmlformats-officedocument.wordprocessingml.document'"
+        [nzShowUploadList]="true"
+      >
+        <p class="ant-upload-drag-icon">
+          <span nz-icon nzType="inbox"></span>
+        </p>
+        <p class="ant-upload-text">Click or drag file to this area to upload</p>
+        <p class="ant-upload-hint">
+          Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files
+        </p>
+      </nz-upload>     
+    </nz-col>
+  </nz-row>
+
+  <nz-row [nzGutter]="16" style="margin-bottom: 20px; margin-top: 20px; padding-top: 50px;">
+    <!-- Company Selection -->
+    <nz-col nzSpan="6">
+      <label for="company-select" style="font-weight: bold;">Company:</label>
+      <nz-select
+        [(ngModel)]="selectedAiCompanyId"
+        nzPlaceHolder="Choose a company"
+        style="width: 100%; margin-top: 10px;"
+      >
+        <nz-option *ngFor="let company of aiCompanies" 
+          [nzLabel]="company.name" 
+          [nzValue]="company.id">
+        </nz-option>
+      </nz-select>
+    </nz-col>
+  
+    <!-- Model Selection -->
+    <nz-col nzSpan="6">
+      <label for="model-select" style="font-weight: bold;">Model:</label>
+      <nz-select
+        [(ngModel)]="translationRequest.languageModelId"
+        nzPlaceHolder="Choose a model"
+        style="width: 100%; margin-top: 10px;"
+      >
+        <nz-option *ngFor="let model of aiLanguageModels" 
+          [nzLabel]="model.name" 
+          [nzValue]="model.id">
+        </nz-option>
+      </nz-select>
+    </nz-col>
+  
+    <!-- API Key Input -->
+    <nz-col nzSpan="12">
+      <label for="api-key" style="font-weight: bold;">API Key:</label>
+      <input 
+        nz-input
+        [(ngModel)]="translationRequest.apiKey"
+        placeholder="Enter your API Key"
+        style="width: 100%; margin-top: 10px;"
+      />
+    </nz-col>
+  </nz-row>
+
+  <!-- Multiselect and Translate Button -->
+  <nz-row [nzGutter]="16" style="margin-bottom: 20px; margin-top: 20px; padding-top: 20px;">
+    <nz-col nzSpan="18">
+      <label for="language-select" style="font-weight: bold;">Select Languages:</label>
+      <nz-select
+        nzMode="multiple"
+        [(ngModel)]="translationRequest.targetLanguageIds"
+        nzPlaceHolder="Choose languages"
+        style="width: 100%; margin-top: 10px;"
+      >
+        <nz-option *ngFor="let language of languages" 
+          [nzLabel]="language.name" 
+          [nzValue]="language.id">
+        </nz-option>
+      </nz-select>
+    </nz-col>
+    <nz-col nzSpan="6">
+      <button nz-button nzType="primary" (click)="onTranslate()" style="margin-top: 32px; width: 100%;" [disabled]="!isTranslationRequestValid()" >Translate</button>
+    </nz-col>
+  </nz-row>
+
+    <!-- Multiselect and Translate Button -->
+    <nz-row [nzGutter]="16" style="margin-bottom: 20px; margin-top: 20px; padding-top: 20px;" 
+    *ngIf="userDocuments && userDocuments.length > 0">
+      <label for="document-select" style="font-weight: bold;">Documents:</label>
+    </nz-row>
+  <nz-row [nzGutter]="16" style="margin-bottom: 20px; margin-top: 20px; padding-top: 20px;" 
+    *ngIf="userDocuments && userDocuments.length > 0">
+
+      <nz-col nzSpan="22">
+        <nz-select
+            [(ngModel)]="selectedUserDocumentId"
+            nzPlaceHolder="Choose a document"
+            style="width: 100%; margin-top: 10px;"
+          >
+        <nz-option *ngFor="let document of userDocuments" 
+          [nzLabel]="document.name" 
+          [nzValue]="document.id">
+        </nz-option>
+      </nz-select>
+      </nz-col>
+      <nz-col nzSpan="2">
+        <button nz-button nzType="default" nzShape="round" nzTooltipTitle="Download Translation">
+          <span nz-icon nzType="download"></span>
+        </button>
+      </nz-col>
+  </nz-row>
+
+  <!-- Document Info -->
+  <nz-row *ngIf="translationTasks?.documentInfo" style="margin-top: 20px;">
+    <nz-col nzSpan="24">
+      <nz-descriptions [nzBordered]="true" [nzColumn]="4" style="margin-top: 10px;" [nzSize]="size">
+        <nz-descriptions-item nzTitle="Upload Date">
+          {{ translationTasks?.documentInfo?.uploadDateTime }}
+        </nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Token Count">
+          {{ translationTasks?.documentInfo?.tokenCount }}
+        </nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Price">
+          {{ translationTasks?.documentInfo?.price | currency }}
+        </nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Progress">
+          {{ translationTasks?.documentInfo?.progress }}%
+        </nz-descriptions-item>
+      </nz-descriptions>
+    </nz-col>
+  </nz-row>
+
+  <!-- Table -->
+  <nz-row *ngIf="translationTasks && translationTasks.translationTasks.length > 0">
+    <nz-col nzSpan="24">
+      <label style="font-weight: bold;">Translation Tasks:</label>
+      <nz-table
+        [nzFrontPagination]="false"
+        [nzBordered]="true"
+        [nzData]="translationTasks.translationTasks"
+        [nzSize]="'middle'"
+        style="width: 100%; margin-top: 10px;"
+      >
+        <thead>
+          <tr>
+            <th scope="col" nzAlign="center">ID</th>
+            <th scope="col">Prompt</th>
+            <th scope="col" nzAlign="center">Target Language</th>
+            <th scope="col" nzAlign="center">Token Count</th>
+            <th scope="col" nzAlign="center">Price</th>
+            <th scope="col" nzAlign="center">Progress</th>
+            <th scope="col" nzAlign="center">Status</th>
+            <th scope="col" nzAlign="center">Action</th>
+          </tr>
+        </thead>      
+        <tbody>
+          <tr *ngFor="let task of translationTasks.translationTasks; let i = index">
+            <td nzAlign="center">{{ i + 1 }}</td>
+            <td>{{ task.prompt }}</td>
+            <td nzAlign="center">{{ task.targetLanguage }}</td>
+            <td nzAlign="center">{{ task.tokenCount }}</td>
+            <td nzAlign="center">{{ task.price | currency }}</td>
+            <td nzAlign="center">{{ task.progress }}%</td>
+            <td nzAlign="center">{{ task.status }}</td>
+            <td nzAlign="center">
+              <button nz-button nzType="primary" nzShape="round" nzTooltipTitle="Run Translation" (click)="onRunTranslation(task)" style="margin-bottom: 5px;" [disabled]="task.status!='New'">
+                <span nz-icon nzType="play-circle"></span>
+              </button>
+              <button nz-button nzType="default" nzShape="round" nzTooltipTitle="Download Translation" (click)="onDownloadTranslation(task)" [disabled]="!task.translatedDocumentId">
+                <span nz-icon nzType="download"></span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </nz-col>
+  </nz-row>
+</div>

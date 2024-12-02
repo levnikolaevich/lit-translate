@@ -1,0 +1,13 @@
+.center-container {
+    
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    width: 80%; /* Увеличиваем ширину */
+    max-width: 1200px; /* Ограничиваем максимальную ширину */
+    margin: 0 auto; /* Центрирование */
+  }
+  
