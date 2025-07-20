@@ -39,7 +39,7 @@ export class TranslatorComponent implements OnInit, OnDestroy {
     private readonly fileService: FileService,
     private readonly iconService: NzIconService
   ) {
-    this.iconService.addIcon(InboxOutline,PlayCircleOutline, DownloadOutline);
+    this.iconService.addIcon(InboxOutline, PlayCircleOutline, DownloadOutline);
 
     this.translationRequest = {
       selectedFile: undefined, // или файл, если он уже выбран
@@ -80,6 +80,16 @@ export class TranslatorComponent implements OnInit, OnDestroy {
     this.getUserDocuments();
   }
   
+  getStatusText(status: string): string {
+    const statusMap: { [key: string]: string } = {
+      'New': 'Новый',
+      'InProgress': 'В процессе',
+      'Completed': 'Завершен',
+      'Error': 'Ошибка'
+    };
+    return statusMap[status] || status;
+  }
+
   handleDocumentUpload(event: { file: NzUploadFile, fileList: NzUploadFile[] }): void {
     this.translationRequest.selectedFile = event.file.originFileObj;
   }
