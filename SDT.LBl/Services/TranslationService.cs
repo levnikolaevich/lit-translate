@@ -276,8 +276,8 @@ namespace SDT.LBl
                             TranslatedText = chatCompletion.Content[0].Text,
                             OutputTokenCount = chatCompletion.Usage.OutputTokenCount,
                             InputTokenCount = chatCompletion.Usage.InputTokenCount,
-                            FinalPrice = chatCompletion.Usage.OutputTokenCount * model.OutputTokenPrice +
-                                         chatCompletion.Usage.InputTokenCount * model.InputTokenPrice,
+                            FinalPrice = (chatCompletion.Usage.OutputTokenCount * model.OutputTokenPrice +
+                                         chatCompletion.Usage.InputTokenCount * model.InputTokenPrice) / 1000000,
                             ProcessingTime = (int)elapsedSeconds
                         };
 
